@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>画像表示</title>
+</head>
+
+<body>
+    <div id="drop-area">
+        <p>ここに画像をドラッグ＆ドロップ（png、svg、webp、jpgのみ対応）</p>
+    </div>
+    <div id="drop-overlay"></div>
+    <div id="image-container"></div>
+    <div id="layer-menu"></div>
+
+    <!-- <div id="opacity-container"></div> -->
+
+    <div class="ui">
+        <div id="slider-container">
+            <input type="range" id="zoom-slider" min="50" max="1000" value="100" step="50" />
+            <span id="zoom-value">100%</span>
+        </div>
+        <div class="button-container">
+
+            <p class="resettip">リセット</p>
+            <button class="reset">&#x27F3;</button>
+
+            <p class="dragtip">ドラッグ<br>機能切替</p>
+            <button id="toggle-drag">&#x296E;</button>
+
+            <p class="allSelecttip">全選択</p>
+            <button id="select-all-button">&#x2714;</button>
+
+            <p class="opacitytip">透明度変更</p>
+            <div id="opacity-controls">
+                <button for="opacity-slider">透</button>
+            </div>
+            <p id="dragCheck" class="dragCheck">ドラッグ機能ON</p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
