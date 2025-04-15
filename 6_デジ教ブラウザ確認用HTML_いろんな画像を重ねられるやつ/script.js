@@ -10,9 +10,7 @@ const zoomValue = document.getElementById('zoom-value');
 const resetButton = document.querySelector('.reset');
 const dragToggleButton = document.getElementById('toggle-drag');
 const selectAllButton = document.getElementById('select-all-button');
-const opacityButton = document.querySelector('#opacity-controls button');
 const dragCheckText = document.getElementById('dragCheck');
-
 
 // ドラッグ機能の切り替え（ドラッグ切替ボタン）
 let isDragEnabled = true;
@@ -90,7 +88,7 @@ function updateZoom() {
     requestAnimationFrame(() => {
         dropArea.scrollLeft = scrollLeft;
         dropArea.scrollTop = scrollTop;
-    })
+    });
 }
 
 // 画像のドロップ処理
@@ -122,7 +120,6 @@ dropArea.addEventListener("drop", (e) => {
             url: imgURL,
             visible: true,
             isAltColor: false,
-            opacity: 1,
             altColor: "#ddd"
         });
     });
@@ -143,10 +140,7 @@ function updateButtonState() {
     resetButton.disabled = !isActive;
     dragToggleButton.disabled = !isActive;
     selectAllButton.disabled = !isActive;
-    opacityButton.disabled = !isActive;
 }
-
-const opacityMap = {};
 
 // 画像表示（描画）関数
 function renderImages() {
@@ -169,31 +163,11 @@ function renderImages() {
         imgEl.style.right = "0";
         imgEl.style.bottom = "0";
         imgEl.style.margin = "auto";
-        imgEl.style.opacity = img.opacity ?? 1;
 
         // 表示・非表示の切り替え
         imgEl.style.display = img.visible ? "block" : "none";
         imgEl.setAttribute("draggable", "false");
 
-        let dragstartX, dragstartY;
-
-        imgEl.addEventListener("pointerdown", ((e) => {
-            dragstartX = e.clientX;
-            dragstartY = e.clientY;
-        }));
-
-        imgEl.addEventListener("pointerup", (e) => {
-            const dx = Math.abs(e.clientX - dragstartX);
-            const dy = Math.abs(e.clientY - dragstartY);
-
-            if (dx < 5 && dy < 5) {
-                let newOpacity = imgEl.style.opacity === "0.4" ? "1" : "0.4";
-                imgEl.style.opacity = newOpacity;
-
-                // 透明度を記録
-                img.opacity = parseFloat(newOpacity);
-            }
-        });
         dropArea.appendChild(imgEl);
     });
     // ズームの状態を反映
@@ -211,11 +185,6 @@ let initialOpacity = {};
 
 // ページのDOM（Document Object Model）が完全に読み込まれた時に実行されるコード
 document.addEventListener("DOMContentLoaded", () => {
-    const opacityButton = document.querySelector("#opacity-controls button");
-    const buttonsToDisable = document.querySelectorAll(".reset, #toggle-drag, #select-all-button");
-    const dropOverlay = document.getElementById("drop-overlay");
-    const layerItems = document.querySelectorAll('.layer-item');
-
     // dropareaで「ドロップ」イベントが発生した時に実行される
     dropArea.addEventListener("drop", (event) => {
         event.preventDefault();
@@ -233,69 +202,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // 不透明度トグルボタン
-    opacityButton.addEventListener("click", () => {
-        isOpacityChanging = !isOpacityChanging;
-
-        // opacity-itemが表示・非表示される 
-        document.querySelectorAll('.opacity-item').forEach(opacityItem => {
-            const currentColor = opacityItem.style.backgroundColor;
-            if (opacityItem.style.display === 'none') {
-                opacityMap[opacityItem.dataset.id] = currentColor;
-            }
-            opacityItem.style.display = opacityItem.style.display === 'none' ? 'flex' : 'none';
-            if (opacityItem.style.display === 'flex') {
-                opacityItem.style.backgroundColor = opacityMap[opacityItem.dataset.id] || currentColor;
-            }
-
-            layerItems.forEach(layerItem => {
-                if (opacityItem.style.display === 'flex') {
-                    layerItem.draggable = false; // opacityItemが表示されたらドラッグ無効化
-                } else {
-                    layerItem.draggable = true; // opacityItemが非表示ならドラッグ有効化
-                }
-            });
-        });
-
-        // 不透明度変更中にテキストや背景色の変更を行う
-        if (isOpacityChanging) {
-            dragToggleButton.style.backgroundColor = "#8BB174";
-            dragCheckText.textContent = "不透明度変更中";
-            dragCheckText.style.backgroundColor = "#4f6ba8";
-            dragCheckText.style.color = "#fff";
-        } else {
-            dragCheckText.textContent = isDragEnabled ? "ドラッグ機能ON" : "ドラッグ機能OFF";
-            dragCheckText.style.backgroundColor = isDragEnabled ? "#B2D3A5" : "#8BB174";
-            dragCheckText.style.color = "#000";
-        }
-
-        // 不透明度変更中にdropOverlay（画像を表示するところにかぶせるアミ）を表示。
-        // 他のボタンを無効化する
-        if (isOpacityChanging) {
-            if (isDragEnabled) {
-                isDragEnabled = false;
-                toggleImageDrag();
-                toggleLayerDrag();
-            }
-
-            buttonsToDisable.forEach(button => {
-                button.disabled = true;// 他のボタンを無効にする
-            });
-
-            dropOverlay.style.display = "block";// drop-areaの上のオーバーレイを表示
-        } else {
-            buttonsToDisable.forEach(button => {
-                button.disabled = false;
-            });
-
-            dropOverlay.style.display = "none";
-        }
-    });
-
     const resetPopup = document.querySelector('.resettip');
     const dragTogglePopup = document.querySelector('.dragtip');
     const selectAllPopup = document.querySelector('.allSelecttip');
-    const opacityPopup = document.querySelector('.opacitytip');
 
     resetButton.addEventListener('mouseover', () => {
         resetPopup.style.display = 'block';
@@ -319,14 +228,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     selectAllButton.addEventListener('mouseleave', () => {
         selectAllPopup.style.display = 'none';
-    });
-
-    opacityButton.addEventListener('mouseover', () => {
-        opacityPopup.style.display = 'block';
-    });
-
-    opacityButton.addEventListener('mouseleave', () => {
-        opacityPopup.style.display = 'none';
     });
 });
 
